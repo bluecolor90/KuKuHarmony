@@ -41,7 +41,7 @@ def version() {	return "v1.6.505" }
  *  04/14/2018 >>> v1.6.503 - Add AviairR10, ProHD4x2
  *  05/27/2018 >>> v1.6.504 - Modify Aircondition
   *  05/27/2018 >>> v1.6.504 - Aviair modify(DH,SMAPPS),contact sensor capability change(contactsensor->switch)
-  * 07/15/2019 >>> note : branch from turlvo/kukuharmony
+  * 07/15/2019 >>> note : branch from turlvo/kukuharmony (ack)
 */
 
 definition(
