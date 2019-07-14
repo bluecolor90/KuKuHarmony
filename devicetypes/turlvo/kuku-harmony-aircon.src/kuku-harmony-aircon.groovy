@@ -17,6 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /*test*/
+/*test2*/
 metadata {
 	definition (name: "KuKu Harmony_Aircon", namespace: "turlvo", author: "KuKu") {
         capability "Actuator"
