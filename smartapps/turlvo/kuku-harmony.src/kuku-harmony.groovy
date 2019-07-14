@@ -18,7 +18,7 @@
  *
  *  Version history
  */
-def version() {	return "v1.6.501" }
+def version() {	return "v1.6.505" }
 /*
  *	03/28/2017 >>> v1.0.000 - Release first KuKu Harmony supports only on/off command for each device
  *  04/13/2017 >>> v1.3.000 - Added Aircon, Fan, Roboking device type
@@ -37,6 +37,10 @@ def version() {	return "v1.6.501" }
  *  09/04/2017 >>> v1.6.002 - hot fix - 'Power Meter' subscription is not called In the case of other devices except the air conditioner
  *  09/18/2017 >>> v1.6.500 - added Contact Sensor's monitoring mode and changed version expression
  *  09/18/2017 >>> v1.6.501 - added 'Number 0' command at TV Type DTH
+ *  04/14/2018 >>> v1.6.502 - generate test branch
+ *  04/14/2018 >>> v1.6.503 - Add AviairR10, ProHD4x2
+ *  05/27/2018 >>> v1.6.504 - Modify Aircondition
+  *  05/27/2018 >>> v1.6.504 - Aviair modify(DH,SMAPPS),contact sensor capability change(contactsensor->switch)
 */
 
 definition(
@@ -63,12 +67,14 @@ preferences {
 // ------------------------------
 // Pages related to Parent
 def parentOrChildPage() {
+	log.debug("checkparent : ${parent}, name: ${name}, namespace:${namespace}")
 	parent ? mainChildPage() : mainPage()
 }
 
 // mainPage
 // seperated two danymic page by 'isInstalled' value 
 def mainPage() {
+	log.debug("checkmainpage")
     if (!atomicState?.isInstalled) {
         return installPage()
     } else {
@@ -79,6 +85,7 @@ def mainPage() {
         } else {
             interval = 3
         }
+		log.debug("check")
         return dynamicPage(name: "mainPage", title: "", uninstall: true, refreshInterval: interval) {
             //getHubStatus()            
             section("Harmony-API Server IP Address :") {
@@ -122,6 +129,7 @@ def initializeParent() {
     atomicState.isInstalled = true
     atomicState.harmonyApiServerIP = harmonyHubIP
     atomicState.hubStatus = "online"
+	log.debug("initializeparent():${atomicState.isInstalled},${atomicState.harmonyApiServerIP}")
 }
 
 def getHarmonyApiServerIP() {
@@ -131,13 +139,14 @@ def getHarmonyApiServerIP() {
 // ------------------------------
 // Pages realted to Child App
 def mainChildPage() {
+	log.debug("check_entermainchild")
     def interval
     if (atomicState.discoverdHubs && atomicState.deviceCommands && atomicState.device) {
         interval = 15
     } else {
         interval = 3
     }
-    return dynamicPage(name: "mainChildPage", title: "Add Device", refreshInterval: interval, uninstall: true, install: true) {    	
+    return dynamicPage(name: "mainChildPage", title: "Add Device", refreshInterval: interval, uninstall: true, install: true) {   
         log.debug "mainChildPage>> parent's atomicState.harmonyApiServerIP: ${parent.getHarmonyApiServerIP()}"
         atomicState.harmonyApiServerIP = parent.getHarmonyApiServerIP()
         
@@ -161,6 +170,7 @@ def mainChildPage() {
 
         def foundDevices = getHubDevices()
         if (atomicState.hub && foundDevices) {
+			log.debug("check>>2")
             section("Device :") {                
                 def labelOfDevice = getLabelsOfDevices(foundDevices)
                 input name: "selectedDevice", type: "enum",  title: "Select Device", multiple: false, options: labelOfDevice, submitOnChange: true, required: true
@@ -169,10 +179,10 @@ def mainChildPage() {
                     atomicState.device = selectedDevice
                 }
             }
-
+			log.debug("check>>1")
             if (selectedDevice) {
                 section("Device Type :") {
-                    def deviceType = ["Default", "Aircon", "TV", "Roboking", "Fan"]
+                    def deviceType = ["Default", "Aircon", "TV", "STB","Roboking", "Fan","VHD-PRO4X2","AviairR10"]
                     input name: "selectedDeviceType", type: "enum", title: "Select Device Type", multiple: false, options: deviceType, submitOnChange: true, required: true                    
                 }
             }  
@@ -186,16 +196,22 @@ def mainChildPage() {
                     addAirconDevice()
                     break
                     case "TV":
-                    case "STB":
                     addTvDeviceTV()
                     break
-                    case "STB":
+					case "STB":
+                    addTvDeviceSTB()
                     break
                     case "Roboking":
                     addRobokingDevice()
                     break
                     case "Fan":
                     addFanDevice()
+					break
+					case "VHD-PRO4X2":
+					addVHDPRO4by2()
+					break
+                    case "AviairR10":
+					addAviairR10()
                     break
                     default:
                         log.debug "selectedDeviceType>> default"
@@ -273,30 +289,42 @@ def addAirconDevice() {
         input name: "selectedPowerOn", type: "enum", title: "Power On", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
         input name: "selectedPowerOff", type: "enum", title: "Power Off", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
         input name: "selectedTempUp", type: "enum", title: "Temperature Up", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
-        input name: "selectedMode", type: "enum", title: "Mode", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
-        input name: "selectedJetCool", type: "enum", title: "JetCool", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        // input name: "selectedMode", type: "enum", title: "Mode", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+        // input name: "selectedJetCool", type: "enum", title: "JetCool", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
         input name: "selectedTempDown", type: "enum", title: "Temperature Down", options: labelOfCommand, submitOnChange: true, multiple: false, required: false    
-        input name: "selectedSpeed", type: "enum", title: "Fan Speed", options: labelOfCommand, submitOnChange: true, multiple: false, required: false   
-        input name: "custom1", type: "enum", title: "Custom1", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
-        input name: "custom2", type: "enum", title: "Custom2", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
-        input name: "custom3", type: "enum", title: "Custom3", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
-        input name: "custom4", type: "enum", title: "Custom4", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
-        input name: "custom5", type: "enum", title: "Custom5", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        // input name: "selectedSpeed", type: "enum", title: "Fan Speed", options: labelOfCommand, submitOnChange: true, multiple: false, required: false   
+        // input name: "custom1", type: "enum", title: "Custom1", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        // input name: "custom2", type: "enum", title: "Custom2", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        // input name: "custom3", type: "enum", title: "Custom3", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        // input name: "custom4", type: "enum", title: "Custom4", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        // input name: "custom5", type: "enum", title: "Custom5", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+		input name: "selectedfanhigh", type: "enum", title: "Fan High", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedfanlow", type: "enum", title: "Fan Low", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedturbo", type: "enum", title: "turbo", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedenergysaver", type: "enum", title: "Energy Saving", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selecteddry", type: "enum", title: "DRY", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedcool", type: "enum", title: "COOL", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
     }
 
     //state.selectedCommands["power"] = selectedPowerToggle
     state.selectedCommands["power-on"] = selectedPowerOn
     state.selectedCommands["power-off"] = selectedPowerOff    
     state.selectedCommands["tempup"] = selectedTempUp
-    state.selectedCommands["mode"] = selectedMode
-    state.selectedCommands["jetcool"] = selectedJetCool
+    // state.selectedCommands["mode"] = selectedMode
+    // state.selectedCommands["jetcool"] = selectedJetCool
     state.selectedCommands["tempdown"] = selectedTempDown
-    state.selectedCommands["speed"] = selectedSpeed
-    state.selectedCommands["custom1"] = custom1
-    state.selectedCommands["custom2"] = custom2
-    state.selectedCommands["custom3"] = custom3
-    state.selectedCommands["custom4"] = custom4
-    state.selectedCommands["custom5"] = custom5  
+    // state.selectedCommands["speed"] = selectedSpeed
+    // state.selectedCommands["custom1"] = custom1
+    // state.selectedCommands["custom2"] = custom2
+    // state.selectedCommands["custom3"] = custom3
+    // state.selectedCommands["custom4"] = custom4
+    // state.selectedCommands["custom5"] = custom5  
+	state.selectedCommands["fanhigh"] = selectedfanhigh
+	state.selectedCommands["turbo"] = selectedturbo
+	state.selectedCommands["fanlow"] = selectedfanlow
+	state.selectedCommands["energysaver"] = selectedenergysaver
+	state.selectedCommands["dry"] = selecteddry
+	state.selectedCommands["cool"] = selectedcool
 
 	monitorMenu() 
 }
@@ -346,6 +374,61 @@ def addTvDeviceTV() {
  
  	monitorMenu() 
 }
+// Add device page for STB(KAONSTB)
+def addTvDeviceSTB() {
+    def labelOfCommand = getLabelsOfCommands(atomicState.deviceCommands)
+    state.selectedCommands = [:]    
+
+    section("Commands :") {            
+        //input name: "selectedPowerToggle", type: "enum", title: "Power Toggle", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
+        input name: "selectedPowerOn", type: "enum", title: "Power On", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
+        input name: "selectedPowerOff", type: "enum", title: "Power Off", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
+        input name: "selectedVolumeUp", type: "enum", title: "Volume Up", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+        input name: "selectedChannelUp", type: "enum", title: "Channel Up", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+        input name: "selectedMute", type: "enum", title: "Mute", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        input name: "selectedVolumeDown", type: "enum", title: "Volume Down", options: labelOfCommand, submitOnChange: true, multiple: false, required: false    
+        input name: "selectedChannelDown", type: "enum", title: "Channel Down", options: labelOfCommand, submitOnChange: true, multiple: false, required: false      
+        input name: "selectedMenu", type: "enum", title: "Menu", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        //input name: "selectedHome", type: "enum", title: "Home", options: labelOfCommand, submitOnChange: true, multiple: false, required: false    
+		input name: "selectedselect", type: "enum", title: "Select", options: labelOfCommand, submitOnChange: true, multiple: false, required: false              
+        input name: "selectedBack", type: "enum", title: "Back", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+		input name: "selectedInput", type: "enum", title: "Input", options: labelOfCommand, submitOnChange: true, multiple: false, required: false              
+        input name: "selectedDirectionUp", type: "enum", title: "DirectionUp", options: labelOfCommand, submitOnChange: true, multiple: false, required: false              
+		input name: "selectedDirectionDown", type: "enum", title: "DirectionDown", options: labelOfCommand, submitOnChange: true, multiple: false, required: false              
+		input name: "selectedDirectionLeft", type: "enum", title: "DirectionLeft", options: labelOfCommand, submitOnChange: true, multiple: false, required: false              
+		input name: "selectedDirectionRight", type: "enum", title: "DirectionRight", options: labelOfCommand, submitOnChange: true, multiple: false, required: false              
+		input name: "custom1", type: "enum", title: "Custom1", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        input name: "custom2", type: "enum", title: "Custom2", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        input name: "custom3", type: "enum", title: "Custom3", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        input name: "custom4", type: "enum", title: "Custom4", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+        input name: "custom5", type: "enum", title: "Custom5", options: labelOfCommand, submitOnChange: true, multiple: false, required: false  
+    }
+    
+    //state.selectedCommands["power"] = selectedPowerToggle
+    state.selectedCommands["power-on"] = selectedPowerOn
+    state.selectedCommands["power-off"] = selectedPowerOff  
+	state.selectedCommands["volup"] = selectedVolumeUp
+    state.selectedCommands["chup"] = selectedChannelUp
+    state.selectedCommands["mute"] = selectedMute
+    state.selectedCommands["voldown"] = selectedVolumeDown
+    state.selectedCommands["chdown"] = selectedChannelDown
+    state.selectedCommands["menu"] = selectedMenu
+    //state.selectedCommands["home"] = selectedHome
+	state.selectedCommands["select"] = selectedselect
+    state.selectedCommands["back"] = selectedBack
+	state.selectedCommands["input"] = selectedInput
+    state.selectedCommands["directionup"] = selectedDirectionUp
+	state.selectedCommands["directiondown"] = selectedDirectionDown
+	state.selectedCommands["directionleft"] = selectedDirectionLeft
+	state.selectedCommands["directionright"] = selectedDirectionRight
+    state.selectedCommands["custom1"] = custom1
+    state.selectedCommands["custom2"] = custom2
+    state.selectedCommands["custom3"] = custom3
+    state.selectedCommands["custom4"] = custom4
+    state.selectedCommands["custom5"] = custom5  
+	
+ 	monitorMenu() 
+}
 
 // Add device page for Aircon
 def addRobokingDevice() {
@@ -387,7 +470,75 @@ def addRobokingDevice() {
     monitorMenu() 
 
 }
+//Add device page for AviairR10
+def addAviairR10() {
+    def labelOfCommand = getLabelsOfCommands(atomicState.deviceCommands)
+    state.selectedCommands = [:]    
 
+	
+    section("Commands :") {
+		input name: "selectedPowerOn", type: "enum", title: "Power On", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
+		input name: "selectedPowerOff", type: "enum", title: "Power Off", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
+        input name: "selectedHorizonSwing", type: "enum", title: "HorizonSwing", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedVerticalSwing", type: "enum", title: "VerticalSwing", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedFanUp", type: "enum", title: "FanUp", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedFanDown", type: "enum", title: "FanDown", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedTimer", type: "enum", title: "Timer", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedFanMode", type: "enum", title: "FanMode", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+    }
+	state.selectedCommands["power-on"] 	 = selectedPowerOn
+	state.selectedCommands["power-off"] 	 =selectedPowerOff
+	state.selectedCommands["VerticalSwing"] 	 =selectedVerticalSwing
+	state.selectedCommands["HorizonSwing"] 	 =selectedHorizonSwing
+	state.selectedCommands["FanUp"] 	 =selectedFanUp
+	state.selectedCommands["FanDown"] 	 =selectedFanDown
+	state.selectedCommands["FanUp"] 	 =selectedFanUp
+	state.selectedCommands["Timer"] 	 =selectedTimer
+	state.selectedCommands["FanMode"] 	 =selectedFanMode
+	
+    monitorMenu() 
+
+}
+// Add device page for VHD-PRO4X2
+def addVHDPRO4by2() {
+    def labelOfCommand = getLabelsOfCommands(atomicState.deviceCommands)
+    state.selectedCommands = [:]    
+
+    section("Commands :") {
+		input name: "selectedPowerOn", type: "enum", title: "Power On", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
+        input name: "selectedPowerOff", type: "enum", title: "Power Off", options: labelOfCommand, submitOnChange: true, multiple: false, required: true
+		input name: "selectedAudio2ch", type: "enum", title: "Audio2ch", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedAudio5P1CH", type: "enum", title: "Audio5P1CH", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedAudioADV", type: "enum", title: "AudioADV", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedAudioARC", type: "enum", title: "AudioARC", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedAudioOnOFF", type: "enum", title: "AudioOnOFF", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputA1", type: "enum", title: "OutputA1", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputA2", type: "enum", title: "OutputA2", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputA3", type: "enum", title: "OutputA3", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputA4", type: "enum", title: "OutputA4", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputB1", type: "enum", title: "OutputB1", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputB2", type: "enum", title: "OutputB2", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputB3", type: "enum", title: "OutputB3", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+		input name: "selectedOutputB4", type: "enum", title: "OutputB4", options: labelOfCommand, submitOnChange: true, multiple: false, required: false
+    }
+	state.selectedCommands["power-on"] = selectedPowerOn
+	state.selectedCommands["power-off"] = selectedPowerOff
+	state.selectedCommands["Audio_2ch"] = selectedAudio2ch
+	state.selectedCommands["Audio_5P1CH"] = selectedAudio5P1CH
+	state.selectedCommands["Audio_ADV"] = selectedAudioADV
+	state.selectedCommands["Audio_ARC"] = selectedAudioARC
+	state.selectedCommands["Audio_OnOFF"] = selectedAudioOnOFF
+	state.selectedCommands["OutputA_1"] = selectedOutputA1
+	state.selectedCommands["OutputA_2"] = selectedOutputA2
+	state.selectedCommands["OutputA_3"] = selectedOutputA3
+	state.selectedCommands["OutputA_4"] = selectedOutputA4
+	state.selectedCommands["OutputB_1"] = selectedOutputB1
+	state.selectedCommands["OutputB_2"] = selectedOutputB2
+	state.selectedCommands["OutputB_3"] = selectedOutputB3
+	state.selectedCommands["OutputB_4"] = selectedOutputB4
+    monitorMenu() 
+
+}
 // ------------------------------------
 // Monitoring sub menu
 def monitorMenu() {
@@ -424,9 +575,9 @@ def powerMonitorMenu() {
 
 def contactMonitorMenu() {
     section("Contact :") {
-        input name: "contactMonitor", type: "capability.contactSensor", title: "Device", submitOnChange: true, multiple: false, required: false
+        input name: "contactMonitor", type: "capability.switch", title: "Device", submitOnChange: true, multiple: false, required: false
     	if (contactMonitor) {    
-            paragraph "[Normal] : Open(On) / Close(Off)\n[Reverse] : Open(Off) / Close(On)"
+            paragraph "[Normal] : on(On) / off(Off)\n[Reverse] : on(Off) / off(On)"
             input name: "contactMonitorMode", type: "enum", title: "Mode", multiple: false, options: ["Normal", "Reverse"], defaultValue: "Normal", submitOnChange: true, required: true	
     	}
         atomicState.contactMonitorMode = contactMonitorMode
@@ -480,17 +631,76 @@ def contactMonitorHandler(evt) {
         notContacted = "off"
     }
     log.debug "contactMonitorHandler>> value is : $evt.value"
-    if (evt.value == "open") {
+    if (evt.value == "on") {
         event = [value: notContacted] 
+        if (evt.value!=child.currentValue("switch"))
+		{
+			// log.debug "contactMonitorHandler>> device is not on,($child)"
+			// child.generateEvent(event)
+		}
+		
     } else {
         event = [value: contacted] 
+		if (evt.value!=child.currentValue("switch"))
+		{
+			// log.debug "contactMonitorHandler>> device is not off,($child)"
+			// child.generateEvent(event)
+		}
+		
     }
-    child.generateEvent(event)
+    // child.generateEvent(event)
+}
+def deviceSwitchHandler(evt)
+{//by kjw,180527
+    def device = []    
+    device = getDeviceByName("$selectedDevice")
+    def deviceId = device.id
+    def child = getChildDevice(deviceId)	//child is the device that wish to control
+	def child_currentState = child.currentValue("switch")
+	
+
+	log.debug "deviceSwitchHandler>Current device : $child"
+	log.debug "deviceSwitchHandler>Current device status : $child_currentState"
+	log.debug "deviceSwitchHandler>Current Event : $evt.value"
+
+
+
+	if (atomicState.selectedMonitorType == "Power Meter") {  
+    	log.debug "Power: $powerMonitor"
+    } else if (atomicState.selectedMonitorType == "Contact") {
+		def contact_currentStats =contactMonitor.currentValue("switch")
+		log.debug "deviceSwitchHandler>SelectedContact:$contactMonitor"
+		log.debug "deviceSwitchHandler>SelectedContact status:$contact_currentStats"
+		def contacted = "off", notContacted = "on"
+		if (atomicState.contactMonitorMode == "Reverse") {
+			contacted = "on"
+			notContacted = "off"
+		}
+		
+		if (evt.value != contact_currentStats) {
+			log.debug "deviceSwitchHandler>contact status is different,send event to Contact, Evt:$evt.value"
+			if(evt.value == "on")
+			{
+				contactMonitor.on()
+			}
+			else
+			{
+				//contactMonitor.off()
+			}
+			
+		} else {
+			// event = [value: contacted] 
+			log.debug "deviceSwitchHandler>contact status is same, skip"
+		}
+
+    }
+	
 }
 
 // Install child device
 def initializeChild(devicetype) {
-    //def devices = getDevices()    
+    //def devices = getDevices()   
+	log.debug("initilizeChild()")
     log.debug "addDeviceDone: $selectedDevice, type: $atomicState.selectedMonitorType"
     app.updateLabel("$selectedDevice")
 
@@ -500,7 +710,7 @@ def initializeChild(devicetype) {
     	subscribe(powerMonitor, "power", powerMonitorHandler)
     } else if (atomicState.selectedMonitorType == "Contact") {
     	log.debug "Contact: $contactMonitor"
-    	subscribe(contactMonitor, "contact", contactMonitorHandler)
+    	subscribe(contactMonitor, "switch", contactMonitorHandler)
     }
     def device = []    
     device = getDeviceByName("$selectedDevice")
@@ -513,13 +723,24 @@ def initializeChild(devicetype) {
     } else {
         log.debug "Device already created"
     }
+	
+	if (atomicState.selectedMonitorType == "Contact")
+	{
+	log.debug "SelectedContact:$contactMonitor"
+	log.debug "subscribe SelectedDevice state"
+	log.debug "SelectedDevice : $existing"
+	
+		subscribe(existing,"switch",deviceSwitchHandler)
+	}
+	
 }
 
 
 // For child Device
 def command(child, command) {
 	def device = getDeviceByName("$selectedDevice")
-    
+    log.debug "Contact(incommand): $contactMonitor"
+	log.debug "contact type:$atomicState.selectedMonitorType"
 	log.debug "childApp parent command(child)>>  $selectedDevice, command: $command, changed Command: ${state.selectedCommands[command]}"
     def commandSlug = getSlugOfCommandByLabel(atomicState.deviceCommands, state.selectedCommands[command])
     log.debug "childApp parent command(child)>>  commandSlug : $commandSlug"
@@ -559,6 +780,7 @@ def updated() {
 def initialize() {
 	log.debug "initialize()"
    parent ? initializeChild() : initializeParent()
+   //parent ? initializeChild() : initializeChild()
 }
 
 
@@ -629,7 +851,6 @@ def getCommandsOfDevice() {
 def getSlugOfCommandByLabel(commands, label) {
 	//def commands = []
     def slug
-    
     commands.each {    	
     	if (it.label == label) {
         	//log.debug "it.label : $it.label, device : $device"
@@ -661,6 +882,7 @@ def getDeviceByName(name) {
 // getHubDevices
 // return : searched list of device in Harmony Hub when installed
 def getHubDevices() {
+	log.debug("getHubDevices:${atomicState.devices}")
 	return atomicState.devices
 }
 
