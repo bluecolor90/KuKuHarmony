@@ -377,6 +377,7 @@ def generateEvent(Map results) {
 		log.debug "generateEvent>> currentState: $currentState"
         if (currentState != value) {
         	log.debug "generateEvent>> changed to $value"
+            virtualpower()
         	//sendEvent(name: "switch", value: value)
         } else {
         	log.debug "generateEvent>> not change"

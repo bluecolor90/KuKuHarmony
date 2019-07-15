@@ -631,6 +631,7 @@ def contactMonitorHandler(evt) {
     	contacted = "on"
         notContacted = "off"
     }
+    //TODO: i want to see evt structure(maybe map or somthing)
     log.debug "contactMonitorHandler>> value is : $evt.value"
     if (evt.value == "on") {
         event = [value: notContacted] 
