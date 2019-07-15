@@ -158,11 +158,11 @@ def parse(String description) {
 }
 
 def power() {
-    log.debug "child power()"
+    log.debug "child.power()"
     
     //def currentState = device.currentState("switch")?.value
     def currentState = device.currentValue("switch")
-    log.debug "power>> state: $currentState"
+    log.debug "child.power>> state: $currentState"
 
     if (currentState == "on") {
 		off()
@@ -266,56 +266,81 @@ def virtualpower() {
 
 
 def momentaryOnHandler() {
-	log.debug "momentaryOnHandler()"
+	log.debug "child.momentaryOnHandler>executed"
     //sendEvent(name: "switch", value: "off")
-	
 }
 
 
 def on() {
-	log.debug "child on()"
+	log.debug "child.on>entered"
     sendEvent(name: "switch", value: "on")
 	
     
-	if (settings.numOnDelay == null || settings.numOnDelay == "" ) settings.numOnDelay = "5"
+	if (settings.numOnDelay == null || settings.numOnDelay == "" ) 
+    {
+        settings.numOnDelay = "5"
+        log.debug "child.on>numOnDelay not set, set to default value 5"
+    }
+    log.debug "child.on>turn on with delay $settings.numOnDelay"
 	runIn(Integer.parseInt(settings.numOnDelay),ondelay)
 	
-	log.debug "on done"
+	log.debug "child.on>done"
     
 
 }
 
 def off() {
-	log.debug "child off"
+	log.debug "child.off>Entered."
 	parent.command(this, "power-off")
-	log.debug "child off>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
-	if (settings.numOffDelay == null || settings.numOffDelay == "" ) settings.numOffDelay = "5"
+	log.debug "child.off>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
+	if (settings.numOffDelay == null || settings.numOffDelay == "" )
+    {
+        settings.numOffDelay = "5"
+        log.debug "child.off>numOffDelay not set, set to default value 5"
+    }
+    log.debug "child.off>turn off with delay $settings.numOffDelay"
 	runIn(Integer.parseInt(settings.numOffDelay),offdelay)
-	log.debug "off Done"
+	log.debug "child.off>Done"
 }
 def ondelay()
 {
-	log.debug "ondelay()"
+	log.debug "child.ondelay>Entered"
     parent.command(this, "power-on")
     if (momentaryOn) {
-    	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) settings.momentaryOnDelay = "5"
-    	log.debug "momentaryOnHandler() >> time : " + settings.momentaryOnDelay
+    	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) 
+        {
+            settings.momentaryOnDelay = "5"
+            log.debug "child.ondelay>numOnDelay not set, set to default value 5"
+        }
+    	log.debug "child.ondelay>momentaryOnHandler() with delay : $settings.momentaryOnDelay"
     	runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
     }
     }
 def FanBeforeOffDelay()
 {
-	log.debug "FanBeforeOffDelay Done"
+    log.debug "child.FanBeforeOffDelay>Enter, Execute off()"
     off()
 }
 def FanBeforeOff()
-{energysaver()
-	
+{
+    energysaver()
+	log.debug "child.FanBeforeOff>Set Energy saver Mode Done"
+    
 	if (settings.FanModeBeforeOff)
 	{
-		if (settings.numFanModeBeforeOff == null || settings.numFanModeBeforeOff == "" ) settings.numFanModeBeforeOff = "300"
+        log.debug "child.FanBeforeOff> FanMode Before Off executed."
+		if (settings.numFanModeBeforeOff == null || settings.numFanModeBeforeOff == "" ) 
+        {
+            settings.numFanModeBeforeOff = "300"
+            log.debug "child.FanBeforeOff> Fan Mode Delay Not Set, Set to default value (300)"
+        }
+        log.debug "child.FanBeforeOff>Set Delay for $settings.numFanModeBeforeOff"
 		runIn(Integer.parseInt(settings.numFanModeBeforeOff),FanBeforeOffDelay)
 	}
+    else
+    {
+        log.debug "child.FanBeforeOff> Skip Delay & Off, if you want to off with delay, set FanModeBeforeOff to true"
+    }
 	
 }
 def offdelay()
