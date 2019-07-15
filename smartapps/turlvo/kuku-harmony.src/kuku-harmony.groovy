@@ -636,16 +636,16 @@ def contactMonitorHandler(evt) {
         event = [value: notContacted] 
         if (evt.value!=child.currentValue("switch"))
 		{
-			// log.debug "contactMonitorHandler>> device is not on,($child)"
-			// child.generateEvent(event)
+			log.debug "contactMonitorHandler>> device is not on,($child)"
+			child.generateEvent(event)
 		}
 		
     } else {
         event = [value: contacted] 
 		if (evt.value!=child.currentValue("switch"))
 		{
-			// log.debug "contactMonitorHandler>> device is not off,($child)"
-			// child.generateEvent(event)
+			log.debug "contactMonitorHandler>> device is not off,($child)"
+			child.generateEvent(event)
 		}
 		
     }
@@ -686,7 +686,7 @@ def deviceSwitchHandler(evt)
 			}
 			else
 			{
-				//contactMonitor.off()
+				contactMonitor.off()
 			}
 			
 		} else {
