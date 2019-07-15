@@ -375,12 +375,13 @@ def generateEvent(Map results) {
 		log.debug "generateEvent>> name: $name, value: $value"
         def currentState = device.currentValue("switch")
 		log.debug "generateEvent>> currentState: $currentState"
-        if (currentState != value) {
-        	log.debug "generateEvent>> changed to $value"
-            virtualpower()
-        	//sendEvent(name: "switch", value: value)
-        } else {
-        	log.debug "generateEvent>> not change"
+        if(value == "off")
+        {
+            log.debug "generateEvent>>switch is now off, execute child.virtualoff"
+            virtualOff()
+        }
+        else if(vlaue == "on"){
+            log.debug "generateEvent>>switch is now on, state would not change"
         }
     }
     return null
