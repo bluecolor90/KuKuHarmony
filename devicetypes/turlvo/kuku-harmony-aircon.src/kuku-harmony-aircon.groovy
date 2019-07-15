@@ -273,7 +273,6 @@ def momentaryOnHandler() {
 
 def on() {
 	log.debug "child.on>entered"
-    sendEvent(name: "switch", value: "on")
 	
     
 	if (settings.numOnDelay == null || settings.numOnDelay == "" ) 
@@ -284,6 +283,7 @@ def on() {
     log.debug "child.on>turn on with delay $settings.numOnDelay"
 	runIn(Integer.parseInt(settings.numOnDelay),ondelay)
 	
+    sendEvent(name: "switch", value: "on")
 	log.debug "child.on>done"
     
 
@@ -381,6 +381,11 @@ def generateEvent(Map results) {
             virtualOff()
         }
         else if(vlaue == "on"){
+            if(currentState==value)
+            {
+                log.debug "generateEvent>>switch is just on, but aircondition is on, so sync status(turn off)"
+                virtualOff()
+            }
             log.debug "generateEvent>>switch is now on, state would not change"
         }
     }
