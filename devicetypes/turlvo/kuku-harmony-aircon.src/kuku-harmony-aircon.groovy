@@ -273,38 +273,55 @@ def momentaryOnHandler() {
 
 
 def on() {
-    log.debug "child on()"
+	log.debug "child on()"
+    sendEvent(name: "switch", value: "on")
+	
+    
+	if (settings.numOnDelay == null || settings.numOnDelay == "" ) settings.numOnDelay = "5"
+	runIn(Integer.parseInt(settings.numOnDelay),ondelay)
+	
+	log.debug "on done"
+    
 
-    log.debug "on>> ${device.currentState("switch")?.value}"
-    def currentState = device.currentState("switch")?.value
-
-    if (currentState == "on") {
-        log.debug "Already turned on, skip ON command"
-    } else {
-        parent.command(this, "power-on")
-        sendEvent(name: "switch", value: "on")
-
-        if (momentaryOn) {
-            if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) settings.momentaryOnDelay = 5
-            log.debug "momentaryOnHandler() >> time : " + settings.momentaryOnDelay
-            runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
-        }
-    }
 }
 
 def off() {
-    log.debug "child off"    
-
-    log.debug "off>> ${device.currentState("switch")?.value}"
-    def currentState = device.currentState("switch")?.value
-
-    if (currentState == "on") {
-        parent.command(this, "power-off")
-        sendEvent(name: "switch", value: "off")
-
-    } else {
-        log.debug "Already turned off, skip OFF command"
+	log.debug "child off"
+	parent.command(this, "power-off")
+	log.debug "child off>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
+	if (settings.numOffDelay == null || settings.numOffDelay == "" ) settings.numOffDelay = "5"
+	runIn(Integer.parseInt(settings.numOffDelay),offdelay)
+	log.debug "off Done"
+}
+def ondelay()
+{
+	log.debug "ondelay()"
+    parent.command(this, "power-on")
+    if (momentaryOn) {
+    	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) settings.momentaryOnDelay = "5"
+    	log.debug "momentaryOnHandler() >> time : " + settings.momentaryOnDelay
+    	runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
     }
+    }
+def FanBeforeOffDelay()
+{
+	log.debug "FanBeforeOffDelay Done"
+    off()
+}
+def FanBeforeOff()
+{energysaver()
+	
+	if (settings.FanModeBeforeOff)
+	{
+		if (settings.numFanModeBeforeOff == null || settings.numFanModeBeforeOff == "" ) settings.numFanModeBeforeOff = "300"
+		runIn(Integer.parseInt(settings.numFanModeBeforeOff),FanBeforeOffDelay)
+	}
+	
+}
+def offdelay()
+{
+	log.debug "offdelay()"
+    sendEvent(name: "switch", value: "off")
 }
 
 
