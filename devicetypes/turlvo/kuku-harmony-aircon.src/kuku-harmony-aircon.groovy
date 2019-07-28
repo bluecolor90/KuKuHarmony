@@ -55,7 +55,7 @@ metadata {
         input name: "momentaryOn", type: "bool",title: "Enable Momentary on (for garage door controller)", required: false
         input name: "momentaryOnDelay", type: "num",title: "Enable Momentary on dealy time(default 5 seconds)", required: false
 		input name: "momentaryOn", type: "bool",title: "Enable Momentary on (for garage door controller)", required: false
-		input name: "numOnDelay", type: "num",title: "on dealy time(default 5 seconds)", required: false
+		input name: "numOnDelay", type: "num",title: "on dealy time(default 8 seconds)", required: false
 		input name: "numOffDelay", type: "num",title: "off dealy time(default 5 seconds)", required: false
 		input name: "FanModeBeforeOff", type: "bool",title: "Activate Fanmode for set seconds before turn off ", required: false
 		input name: "numFanModeBeforeOff", type: "num",title: "Activate Fanmode for set seconds before turn off dealy time(default 300 seconds)", required: false
@@ -271,57 +271,7 @@ def momentaryOnHandler() {
 }
 
 
-def on() {
-	log.debug "child.on>entered"
-	
-    
-	if (settings.numOnDelay == null || settings.numOnDelay == "" ) 
-    {
-        settings.numOnDelay = "5"
-        log.debug "child.on>numOnDelay not set, set to default value 5"
-    }
-    log.debug "child.on>turn on with delay $settings.numOnDelay"
-	runIn(Integer.parseInt(settings.numOnDelay),ondelay)
-	
-    sendEvent(name: "switch", value: "on")
-	log.debug "child.on>done"
-    
 
-}
-
-def off() {
-	log.debug "child.off>Entered."
-	parent.command(this, "power-off")
-	log.debug "child.off>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
-	if (settings.numOffDelay == null || settings.numOffDelay == "" )
-    {
-        settings.numOffDelay = "5"
-        log.debug "child.off>numOffDelay not set, set to default value 5"
-    }
-    log.debug "child.off>turn off with delay $settings.numOffDelay"
-	runIn(Integer.parseInt(settings.numOffDelay),offdelay)
-	log.debug "child.off>Done"
-}
-def ondelay()
-{
-	log.debug "child.ondelay>Entered"
-    //need check contact
-    parent.command(this, "power-on")
-    if (momentaryOn) {
-    	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) 
-        {
-            settings.momentaryOnDelay = "5"
-            log.debug "child.ondelay>numOnDelay not set, set to default value 5"
-        }
-    	log.debug "child.ondelay>momentaryOnHandler() with delay : $settings.momentaryOnDelay"
-    	runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
-    }
-    }
-def FanBeforeOffDelay()
-{
-    log.debug "child.FanBeforeOffDelay>Enter, Execute off()"
-    off()
-}
 def FanBeforeOff()
 {
     energysaver()
@@ -344,10 +294,80 @@ def FanBeforeOff()
     }
 	
 }
+def off() {
+	log.debug "child.off>Entered."
+    if (settings.FanModeBeforeOff)
+	{
+        log.debug "child.off> settings.FanModeBeforeOff Activated, Execute FanMode Before Off"
+		if (settings.numFanModeBeforeOff == null || settings.numFanModeBeforeOff == "" ) 
+        {
+            settings.numFanModeBeforeOff = "300"
+            log.debug "child.FanBeforeOff> Fan Mode Delay Not Set, Set to default value (300)"
+        }
+        log.debug "child.FanBeforeOff>Set Delay for $settings.numFanModeBeforeOff"
+		runIn(Integer.parseInt(settings.numFanModeBeforeOff),FanBeforeOffDelay) //TODO: 꼬이진않을지점검필요, turning off 상태일건데..
+	}
+    else{
+        actualoff()
+    }
+
+}
+def FanBeforeOffDelay()
+{
+    log.debug "child.FanBeforeOffDelay>Enter, Execute off()"
+    actualoff()
+}
+def actualoff()
+{
+    parent.command(this, "power-off")
+    log.debug "child.actualoff>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
+    if (settings.numOffDelay == null || settings.numOffDelay == "" )
+    {
+        settings.numOffDelay = "5"
+        log.debug "child.actualoff>numOffDelay not set, set to default value 5"
+    }
+    log.debug "child.actualoff>turn off with delay $settings.numOffDelay"
+    runIn(Integer.parseInt(settings.numOffDelay),offdelay)
+    log.debug "child.actualoff>Done"
+
+}
 def offdelay()
 {
 	log.debug "offdelay()"
     sendEvent(name: "switch", value: "off")
+}
+
+def on() {
+	log.debug "child.on>entered"
+	
+    
+	if (settings.numOnDelay == null || settings.numOnDelay == "" ) 
+    {
+        settings.numOnDelay = "8"
+        log.debug "child.on>numOnDelay not set, set to default value 5"
+    }
+    log.debug "child.on>turn on with delay $settings.numOnDelay"
+	runIn(Integer.parseInt(settings.numOnDelay),ondelay)
+	
+    sendEvent(name: "switch", value: "on")
+	log.debug "child.on>done"
+    
+
+}
+def ondelay()
+{
+	log.debug "child.ondelay>Entered"
+    //need check contact
+    parent.command(this, "power-on")
+    if (momentaryOn) {
+    	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) 
+        {
+            settings.momentaryOnDelay = "5"
+            log.debug "child.ondelay>numOnDelay not set, set to default value 5"
+        }
+    	log.debug "child.ondelay>momentaryOnHandler() with delay : $settings.momentaryOnDelay"
+    	runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
+    }
 }
 
 
@@ -373,21 +393,21 @@ def parseEventData(Map results) {
 
 def generateEvent(Map results) {
     results.each { name, value ->
-		log.debug "generateEvent>> name: $name, value: $value"
+		log.debug "child.generateEvent>> name: $name, value: $value"
         def currentState = device.currentValue("switch")
-		log.debug "generateEvent>> currentState: $currentState"
+		log.debug "child.generateEvent>> currentState: $currentState"
         if(value == "off")
         {
-            log.debug "generateEvent>>switch is now off, execute child.virtualoff"
+            log.debug "child.generateEvent>>switch is now off, execute child.virtualoff"
             virtualOff()
         }
         else if(vlaue == "on"){
             if(currentState==value)
             {
-                log.debug "generateEvent>>switch is just on, but aircondition is on, so sync status(turn off)"
+                log.debug "child.generateEvent>>switch is just on, but aircondition is on, so sync status(turn off)"
                 virtualOff()
             }
-            log.debug "generateEvent>>switch is now on, state would not change"
+            log.debug "child.generateEvent>>switch is now on, state would not change"
         }
     }
     return null
