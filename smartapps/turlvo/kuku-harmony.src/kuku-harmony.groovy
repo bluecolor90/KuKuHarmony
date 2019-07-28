@@ -911,7 +911,6 @@ def sendCommandToDevice_response(resp) {
     def result = []
     def body = new groovy.json.JsonSlurper().parseText(parseLanMessage(resp.description).body)
     log.debug("sendCommandToDevice_response >> $body")
-    return body
 }
 
 // getHubStatus
