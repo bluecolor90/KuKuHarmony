@@ -305,6 +305,7 @@ def off() {
 def ondelay()
 {
 	log.debug "child.ondelay>Entered"
+    //need check contact
     parent.command(this, "power-on")
     if (momentaryOn) {
     	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) 
