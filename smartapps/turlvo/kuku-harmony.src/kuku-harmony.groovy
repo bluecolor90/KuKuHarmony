@@ -633,7 +633,7 @@ def contactMonitorHandler(evt) {
     }
     //TODO: i want to see evt structure(maybe map or somthing)
     evt.each{
-        key,value -> println "contactMonitorHandler>> full request of key,val : $key , $value"
+        key,value -> println("contactMonitorHandler>> full request of key,val : $key , $value")
     }
     
     log.debug "contactMonitorHandler>> value is : $evt.value"
