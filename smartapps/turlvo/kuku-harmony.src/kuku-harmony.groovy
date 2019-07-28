@@ -756,8 +756,6 @@ def command(child, command) {
         log.debug "parrent>command>retry command"
         result=sendCommandToDevice(device.slug, commandSlug)
     }
-    event=[commandresult:result.message,requestcommand:command]
-    child.generateEvent(event)
 }
 
 def commandValue(child, command) {
@@ -911,7 +909,8 @@ def sendCommandToDevice_response(resp) {
     def result = []
     def body = new groovy.json.JsonSlurper().parseText(parseLanMessage(resp.description).body)
     log.debug("sendCommandToDevice_response >> $body")
-    return body
+    result=[commandresult:body]
+    child.generateEvent(result)
 }
 
 // getHubStatus
