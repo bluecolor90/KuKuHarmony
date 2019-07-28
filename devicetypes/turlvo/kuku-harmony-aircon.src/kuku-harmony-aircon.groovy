@@ -319,7 +319,6 @@ def FanBeforeOffDelay()
 }
 def actualoff()
 {
-    def currentState = device.currentValue("switch")
     parent.command(this, "power-off")
     log.debug "child.actualoff>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
     if (settings.numOffDelay == null || settings.numOffDelay == "" )
@@ -334,7 +333,6 @@ def actualoff()
 }
 def offdelay()
 {
-    
 	log.debug "offdelay()"
     sendEvent(name: "switch", value: "off")
 }
@@ -395,7 +393,6 @@ def parseEventData(Map results) {
 
 def generateEvent(Map results) {
     results.each { name, value ->
-        log.debug "child.generateEvent>>it will be Never occrued, blcok contactmonitor generate event"
 		log.debug "child.generateEvent>> name: $name, value: $value"
         def currentState = device.currentValue("switch")
 		log.debug "child.generateEvent>> currentState: $currentState"
