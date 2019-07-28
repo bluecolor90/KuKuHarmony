@@ -156,6 +156,29 @@ def installed() {
 def parse(String description) {
 	log.debug "child>parse(string)>Parsing '${description}'"
 }
+def  parse(Map event){
+    log.debug "child>parse(map)>parsing"
+    //event=[commandresult:result.message,requestcommand:command]
+    log.debug "child>parse(map)>requested command is $event.requestcommand"
+    if(event.requestcommand=="power-on" )
+    {
+        if(event.commandresult=="ok"){
+            log.debug "child>parse(map)>commandExecuteDone"
+        }
+        else{
+            log.debug "child>parse(map)>commandExecute error"
+        }
+    }
+        if(event.requestcommand=="power-off" )
+    {        
+        if(event.commandresult=="ok"){
+            log.debug "child>parse(map)>commandExecuteDone"
+        }
+        else{
+            log.debug "child>parse(map)>commandExecute error"
+        }
+    }
+}
 
 def power() {
     log.debug "child.power()"
@@ -366,12 +389,7 @@ def poll() {
 }
 
 def parseEventData(Map results) {
-    //commandresult
     results.each { name, value ->
-        if(name=="commandresult" && value=="ok")
-        {
-            log.debug "child>parseEventData>command result is ok"
-        }
         //Parse events and optionally create SmartThings events
     }
 }
