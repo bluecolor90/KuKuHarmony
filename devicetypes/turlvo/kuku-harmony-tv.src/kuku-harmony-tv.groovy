@@ -53,8 +53,8 @@ metadata {
         command "custom4"
         command "custom5"
         
-        command "virtualpower"
-							
+        command "virtualOn"
+        command "virtualOff"
 	}
 
     preferences {
@@ -72,12 +72,10 @@ metadata {
 			}
         }
 
-        standardTile("power", "device.switch", width: 6, height: 3) {
-    		state "off", label:'${name}', action:"switch.on", backgroundColor:"#ffffff", icon: "st.switches.switch.off", nextState:"turningOn"
-			state "on", label:'${name}', action:"switch.off", backgroundColor:"#00a0dc", icon: "st.switches.switch.on", nextState:"turningOff"				
-			state "turningOn", label:'${name}', action:"switch.off", backgroundColor:"#00a0dc", icon: "st.switches.switch.off", nextState:"turningOff"
-			state "turningOff", label:'${name}', action:"switch.on", backgroundColor:"#ffffff", icon: "st.switches.switch.on", nextState:"turningOn"
-		}
+        valueTile("power", "device.power", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "POWER", action: "power"
+            state "no", label: "unavail", action: ""
+        }
         valueTile("volup", "device.volup", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "+\nVOLUME", action: "volup"
             state "no", label: "unavail", action: ""
@@ -157,15 +155,10 @@ metadata {
             state "yes", label: "0", action: "number_0"
             state "no", label: "unavail", action: ""
         }
-		valueTile("virtualpower", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "on", label: "virtualOff", action: "virtualpower"
-			state "off", label: "virtualOn", action: "virtualpower"
-        }
     }
 
 	main(["switch"])
-	details(["power",
-			"virtualpower", "volup", "chup",
+	details(["power", "volup", "chup",
             "mute", "voldown", "chdown",
             "menu", "home", "input",
             "number_1", "number_2", "number_3",
@@ -348,22 +341,14 @@ def momentaryOnHandler() {
 }
 
 
-				 
-						
-										  
- 
+def virtualOn() {
+	log.debug "child on()"	
+    sendEvent(name: "switch", value: "on")
+}
 
-def virtualpower() {	
-    if(device.currentValue("switch")=="on")
-	{
-		log.debug "child virtualoff()"
-		sendEvent(name:"switch",value:"off")
-	}
-	else
-	{
-		log.debug "child virtualoff()"
-		sendEvent(name:"switch",value:"on")
-	}
+def virtualOff() {
+	log.debug "child off"	
+    sendEvent(name: "switch", value: "off")
 }
 
 def generateEvent(Map results) {
