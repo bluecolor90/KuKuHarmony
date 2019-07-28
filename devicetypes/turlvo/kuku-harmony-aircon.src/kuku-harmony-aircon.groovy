@@ -154,7 +154,30 @@ def installed() {
 
 // parse events into attributes
 def parse(String description) {
-	log.debug "Parsing '${description}'"
+	log.debug "child>parse(string)>Parsing '${description}'"
+}
+def  parse(Map event){
+    log.debug "child>parse(map)>parsing"
+    //event=[commandresult:result.message,requestcommand:command]
+    log.debug "child>parse(map)>requested command is $event.requestcommand"
+    if(event.requestcommand=="power-on" )
+    {
+        if(event.commandresult=="ok"){
+            log.debug "child>parse(map)>commandExecuteDone"
+        }
+        else{
+            log.debug "child>parse(map)>commandExecute error"
+        }
+    }
+        if(event.requestcommand=="power-off" )
+    {        
+        if(event.commandresult=="ok"){
+            log.debug "child>parse(map)>commandExecuteDone"
+        }
+        else{
+            log.debug "child>parse(map)>commandExecute error"
+        }
+    }
 }
 
 def power() {

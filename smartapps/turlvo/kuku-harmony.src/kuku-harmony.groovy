@@ -743,17 +743,21 @@ def initializeChild(devicetype) {
 // For child Device
 def command(child, command) {
 	def device = getDeviceByName("$selectedDevice")
-    log.debug "Contact(incommand): $contactMonitor"
-	log.debug "contact type:$atomicState.selectedMonitorType"
-	log.debug "childApp parent command(child)>>  $selectedDevice, command: $command, changed Command: ${state.selectedCommands[command]}"
+    log.debug "parrent>command>Contact(incommand): $contactMonitor"
+	log.debug "parrent>command>contact type:$atomicState.selectedMonitorType"
+	log.debug "parrent>command>childApp parent command(child)>>  $selectedDevice, command: $command, changed Command: ${state.selectedCommands[command]}"
     def commandSlug = getSlugOfCommandByLabel(atomicState.deviceCommands, state.selectedCommands[command])
-    log.debug "childApp parent command(child)>>  commandSlug : $commandSlug"
+    log.debug "parrent>command>childApp parent command(child)>>  commandSlug : $commandSlug"
     
     def result
+    def event
     result = sendCommandToDevice(device.slug, commandSlug)
     if (result && result.message != "ok") {
-        sendCommandToDevice(device.slug, commandSlug)
+        log.debug "parrent>command>retry command"
+        result=sendCommandToDevice(device.slug, commandSlug)
     }
+    event=[commandresult:result.message,requestcommand:command]
+    child.generateEvent(event)
 }
 
 def commandValue(child, command) {
