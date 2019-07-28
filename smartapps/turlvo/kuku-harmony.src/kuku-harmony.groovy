@@ -906,15 +906,9 @@ def sendCommandToDevice(device, command) {
 }
 
 def sendCommandToDevice_response(resp) {
-    def device = []    
-    device = getDeviceByName("$selectedDevice")
-    def deviceId = device.id
-    def child= getChildDevice(deviceId)
     def result = []
     def body = new groovy.json.JsonSlurper().parseText(parseLanMessage(resp.description).body)
-    log.debug("sendCommandToDevice_response >> $body")
-    result=[commandresult:body.message]
-    child.generateEvent(result)
+    sendEvent(name:"testevent",value:"whoreceive")
 }
 
 // getHubStatus
