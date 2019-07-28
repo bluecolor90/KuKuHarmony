@@ -620,38 +620,38 @@ def powerMonitorHandler(evt) {
 
 // Subscribe contact value and change status
 def contactMonitorHandler(evt) {
-    def device = []    
-    device = getDeviceByName("$selectedDevice")
-    def deviceId = device.id
-    def child = getChildDevice(deviceId)
-    def event
+    log.debug "ContactMonitorHandler>Do nothing"
+    // def device = []    
+    // device = getDeviceByName("$selectedDevice")
+    // def deviceId = device.id
+    // def child = getChildDevice(deviceId)
+    // def event
 
-	def contacted = "off", notContacted = "on"
-    if (atomicState.contactMonitorMode == "Reverse") {
-    	contacted = "on"
-        notContacted = "off"
-    }
-    //TODO: i want to see evt structure(maybe map or somthing)
-    log.debug "contactMonitorHandler>> full request of evt : $evt"
-    log.debug "contactMonitorHandler>> value is : $evt.value"
-    if (evt.value == "on") {
-        event = [value: notContacted] 
-        if (evt.value!=child.currentValue("switch"))
-		{
-			log.debug "contactMonitorHandler>> device is not on,($child)"
-			//child.generateEvent(event)
-		}
+	// def contacted = "off", notContacted = "on"
+    // if (atomicState.contactMonitorMode == "Reverse") {
+    // 	contacted = "on"
+    //     notContacted = "off"
+    // }
+    // //TODO: i want to see evt structure(maybe map or somthing)
+    // log.debug "contactMonitorHandler>> value is : $evt.value"
+    // if (evt.value == "on") {
+    //     event = [value: notContacted] 
+    //     if (evt.value!=child.currentValue("switch"))
+	// 	{
+	// 		log.debug "contactMonitorHandler>> device is not on,($child)"
+	// 		//child.generateEvent(event)
+	// 	}
 		
-    } else {
-        event = [value: contacted] 
-		if (evt.value!=child.currentValue("switch"))
-		{
-			log.debug "contactMonitorHandler>> device is not off,($child)"
-			//child.generateEvent(event)
-		}
+    // } else {
+    //     event = [value: contacted] 
+	// 	if (evt.value!=child.currentValue("switch"))
+	// 	{
+	// 		log.debug "contactMonitorHandler>> device is not off,($child)"
+	// 		//child.generateEvent(event)
+	// 	}
 		
-    }
-    child.generateEvent(event)
+    // }
+    // child.generateEvent(event)
 }
 def deviceSwitchHandler(evt)
 {//by kjw,180527
@@ -687,7 +687,7 @@ def deviceSwitchHandler(evt)
             def contactping = contactMonitor.ping()
             log.debug "parent.deviceSwitchHandler>check contact monitor ping $contactping"
             contactMonitor.off()
-            runIn(1, contactMonitor.on())
+            runIn(3, contactMonitor.on())
         }
         else{
             // keep contact mode
