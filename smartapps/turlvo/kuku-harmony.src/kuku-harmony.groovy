@@ -662,9 +662,9 @@ def deviceSwitchHandler(evt)
 	def child_currentState = child.currentValue("switch")
 	
 
-	log.debug "parent.deviceSwitchHandler>Current device : $child"
-	log.debug "parent.deviceSwitchHandler>Current device status : $child_currentState"
-	log.debug "parent.deviceSwitchHandler>Current Event : $evt.value"
+	log.debug "deviceSwitchHandler>Current device : $child"
+	log.debug "deviceSwitchHandler>Current device status : $child_currentState"
+	log.debug "deviceSwitchHandler>Current Event : $evt.value"
 
 
 
@@ -672,28 +672,30 @@ def deviceSwitchHandler(evt)
     	log.debug "Power: $powerMonitor"
     } else if (atomicState.selectedMonitorType == "Contact") {
 		def contact_currentStats =contactMonitor.currentValue("switch")
-		log.debug "parent.deviceSwitchHandler>SelectedContact:$contactMonitor"
-		log.debug "parent.deviceSwitchHandler>SelectedContact status:$contact_currentStats"
+		log.debug "deviceSwitchHandler>SelectedContact:$contactMonitor"
+		log.debug "deviceSwitchHandler>SelectedContact status:$contact_currentStats"
 		def contacted = "off", notContacted = "on"
 		if (atomicState.contactMonitorMode == "Reverse") {
 			contacted = "on"
 			notContacted = "off"
 		}
+		
+		if (evt.value != contact_currentStats) {
+			log.debug "deviceSwitchHandler>contact status is different,send event to Contact, Evt:$evt.value"
+			if(evt.value == "on")
+			{
+				contactMonitor.on()
+			}
+			else
+			{
+				contactMonitor.off()
+			}
+			
+		} else {
+			// event = [value: contacted] 
+			log.debug "deviceSwitchHandler>contact status is same, skip"
+		}
 
-        if(evt.value=="on")
-        {
-            // contact reset (contact 켜져있는 상태에서도 신뢰할수없음)
-            log.debug "parent.deviceSwitchHandler>refresh contact monitor, current stat"
-            def contactping = contactMonitor.ping()
-            log.debug "parent.deviceSwitchHandler>check contact monitor ping $contactping"
-            contactMonitor.off()
-            runIn(1, contactMonitor.on)
-        }
-        else{
-            // keep contact mode
-            log.debug "parent.deviceSwitchHandler>check contact monitor ping $contactping"
-            log.debug "parent.deviceSwitchHandler>keep current contact monitor state"
-        }
     }
 	
 }
