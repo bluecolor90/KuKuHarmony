@@ -72,12 +72,10 @@ def parse(String description) {
 }
 
 def off() {
-    log.debug "zigbeeswitch>off>executed"
     zigbee.off()
 }
 
 def on() {
-    log.debug "zigbeeswitch>on>executed"
     zigbee.on()
 }
 
@@ -85,13 +83,11 @@ def on() {
  * PING is used by Device-Watch in attempt to reach the Device
  * */
 def ping() {
-    log.debug "zigbeeswitch>ping>executed"
     return refresh()
 }
 
 def refresh() {
-    log.debug "zigbeeswitch>refresh>executed"
-    return (zigbee.onOffRefresh() + zigbee.onOffConfig())
+    zigbee.onOffRefresh() + zigbee.onOffConfig()
 }
 
 def configure() {
