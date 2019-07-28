@@ -687,7 +687,7 @@ def deviceSwitchHandler(evt)
             def contactping = contactMonitor.ping()
             log.debug "parent.deviceSwitchHandler>check contact monitor ping $contactping"
             contactMonitor.off()
-            runIn(1, contactMonitor.on)
+            runIn(1, contactMonitor.on())
         }
         else{
             // keep contact mode
