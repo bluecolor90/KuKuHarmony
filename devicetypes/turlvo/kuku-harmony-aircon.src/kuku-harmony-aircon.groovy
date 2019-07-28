@@ -378,6 +378,10 @@ def parseEventData(Map results) {
 
 def generateEvent(Map results) {
     results.each { name, value ->
+        if(name=="commandresult" && value=="ok")
+        {
+            log.debug "child>generateEvent>command result is ok"
+        }
 		log.debug "generateEvent>> name: $name, value: $value"
         def currentState = device.currentValue("switch")
 		log.debug "generateEvent>> currentState: $currentState"
