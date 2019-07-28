@@ -368,7 +368,7 @@ def poll() {
 def parseEventData(Map results) {
     //commandresult
     results.each { name, value ->
-        if(name=="testevent" && value=="whoreceive")
+        if(name=="commandresult" && value=="ok")
         {
             log.debug "child>parseEventData>command result is ok"
         }
@@ -378,7 +378,7 @@ def parseEventData(Map results) {
 
 def generateEvent(Map results) {
     results.each { name, value ->
-        if(name=="testevent" && value=="whoreceive")
+        if(name=="commandresult" && value=="ok")
         {
             log.debug "child>generateEvent>command result is ok"
         }
