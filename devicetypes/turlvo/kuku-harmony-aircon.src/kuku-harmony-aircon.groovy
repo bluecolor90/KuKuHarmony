@@ -134,6 +134,10 @@ metadata {
             state "yes", label: "FanBeforeOff", action: "FanBeforeOff"
             state "no", label: "unavail", action: ""
         }
+        valueTile("OnlyOff", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "FanBeforeOff", action: "onlyoff"
+            state "no", label: "unavail", action: ""
+        }
     }
 
 	main(["switch"])
@@ -288,19 +292,27 @@ def on() {
     
 
 }
-
-def off() {
-	log.debug "child.off>Entered."
+def onlyoff(){
+    log.debug "child.onlyoff>Entered."
 	parent.command(this, "power-off")
-	log.debug "child.off>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
+	log.debug "child.onlyoff>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
 	if (settings.numOffDelay == null || settings.numOffDelay == "" )
     {
         settings.numOffDelay = "5"
-        log.debug "child.off>numOffDelay not set, set to default value 5"
+        log.debug "child.onlyoff>numOffDelay not set, set to default value 5"
     }
-    log.debug "child.off>turn off with delay $settings.numOffDelay"
+    log.debug "child.onlyoff>turn off with delay $settings.numOffDelay"
 	runIn(Integer.parseInt(settings.numOffDelay),offdelay)
-	log.debug "child.off>Done"
+	log.debug "child.onlyoff>Done"
+}
+def off() {
+    if (settings.FanModeBeforeOff)
+    {
+        FanBeforeOff()
+    }
+    else{
+        onlyoff()
+    }
 }
 def ondelay()
 {
@@ -320,7 +332,7 @@ def ondelay()
 def FanBeforeOffDelay()
 {
     log.debug "child.FanBeforeOffDelay>Enter, Execute off()"
-    off()
+    onlyoff()
 }
 def FanBeforeOff()
 {
