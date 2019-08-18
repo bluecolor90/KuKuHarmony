@@ -262,7 +262,7 @@ def commanddelay(milsec,command)
     def now = new Date()
     def runTime = new Date(now.getTime() + milsec)
     log.debug "child>command with delay, runonce at : ${runTIme}"
-    runOnce(runTime,mCommandTimerEvt,[data: [passcommand: command]])
+    runOnce(runTime,mCommandTimerEvt,[overwrite:false,data: [passcommand: command]])
 }
 def mCommandTimerEvt(data){
     log.debug "child>mCommandTimerEvt>input command : ${data.passcommand}"
