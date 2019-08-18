@@ -243,7 +243,7 @@ def coolwithlowtemp() {
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${it}"
         parent.command(this, "tempdown")
-        sleep(300)
+        sleep(1)
     }
     for(i=0;i<4;i++)
     {
