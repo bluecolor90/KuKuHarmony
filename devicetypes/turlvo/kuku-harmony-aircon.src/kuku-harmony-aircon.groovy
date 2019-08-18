@@ -243,13 +243,13 @@ def coolwithlowtemp() {
     def accumdelay =0
     for(int i =0 ; i < 14 ; i++)
     {
-        log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
+        log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
         accumdelay+= commanddelay
         commanddelay(accumdelay,"tempdown")
     }
     for(int i =0 ; i < 3 ; i++)
     {
-        log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
+        log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
         accumdelay+= commanddelay
         commanddelay(accumdelay,"fanhigh")
     }
