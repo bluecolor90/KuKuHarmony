@@ -40,6 +40,9 @@ metadata {
 		command "energysaver"
 		command "dry"
 		command "cool"
+        command "coolwithlowtemp"
+        command "coolwithsleep"
+        command "onlyoff"
         // command "custom1"
         // command "custom2"
         // command "custom3"
@@ -138,7 +141,7 @@ metadata {
             state "on", label: "virtualOff", action: "virtualpower"
 			state "off", label: "virtualOn", action: "virtualpower"
         }
-		valueTile("FanBeforeOff", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+		valueTile("FanBeforeOff", "device.switch", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "FanBeforeOff", action: "FanBeforeOff"
             state "no", label: "unavail", action: ""
         }
