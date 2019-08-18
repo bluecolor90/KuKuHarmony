@@ -343,11 +343,11 @@ def on() {
     }
     log.debug "child.on>turn on with delay $settings.numOnDelay"
 	runIn(Integer.parseInt(settings.numOnDelay),ondelay)
+    runIn(Integer.parseInt(settings.numOnDelay)+10,coolwithlowtemp,[overwrite:false])
 	
     sendEvent(name: "switch", value: "on")
 	log.debug "child.on>done"
     
-
 }
 def onlyoff(){
     log.debug "child.onlyoff>Entered."
