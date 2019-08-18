@@ -243,13 +243,13 @@ def coolwithlowtemp() {
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
         parent.command(this, "tempdown")
-        pause(Integer(300))
+        pause(200)
     }
     for(int i =0 ; i < 3 ; i++)
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
         parent.command(this,"fanhigh")
-        pause(Integer(300))
+        pause(200)
     }
 }
 def commanddelay()
