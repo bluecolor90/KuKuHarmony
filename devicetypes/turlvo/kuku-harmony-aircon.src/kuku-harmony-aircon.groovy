@@ -239,8 +239,10 @@ def cool() {
 def coolwithlowtemp() {
     log.debug "child>cooldwithlowtemp, set 18deg, fan high"
     parent.command(this,"cool")
-    def commandelaymilsec = 200
+    def commandelaymilsec = 1000
     def accumdelay =0
+    accumdelay+= commandelaymilsec
+    commanddelay(accumdelay,"tempdown")
     for(int i =0 ; i < 14 ; i++)
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
@@ -259,12 +261,12 @@ def commanddelay(milsec,command)
     log.debug "child>command with delay, delay : ${milsec}, command : ${command}"
     def now = new Date()
     def runTime = new Date(now.getTime() + milsec)
-    log.debug "child>command with delay, now : ${now.getTime()}, command : ${runTIme}"
-    runOnce(runTime,mCommandTimerEvt,command)
+    log.debug "child>command with delay, runonce at : ${runTIme}"
+    runOnce(runTime,mCommandTimerEvt,[data: [passcommand: command]])
 }
-def mCommandTimerEvt(command){
-    log.debug "child>mCommandTimerEvt>input command : ${command}"
-    parent.command(this,command)
+def mCommandTimerEvt(data){
+    log.debug "child>mCommandTimerEvt>input command : ${data.passcommand}"
+    parent.command(this,data.passcommand)
 
 }
 def coolwithsleep() {
