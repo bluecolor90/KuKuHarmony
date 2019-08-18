@@ -257,6 +257,7 @@ def coolwithlowtemp() {
 def commanddelay(milsec,command)
 {
     log.debug "child>command with delay, delay : ${milsec}, command : ${command}"
+    def now = new Date()
     def runTime = new Date(now.getTime() + milsec)
     runOnce(runTime,mCommandTimerEvt,command)
 }
