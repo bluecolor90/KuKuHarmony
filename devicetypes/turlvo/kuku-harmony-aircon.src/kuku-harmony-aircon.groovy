@@ -241,6 +241,7 @@ def coolwithlowtemp() {
     parent.command(this,"cool") 
     for(i=0;i<11;i++)
     {
+        log.debug "child>cooldwithlowtemp> debug, in loop"
         parent.command(this, "tempdown")
     }
     for(i=0;i<4;i++)
