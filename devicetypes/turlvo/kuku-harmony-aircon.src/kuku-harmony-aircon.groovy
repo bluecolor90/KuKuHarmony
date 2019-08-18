@@ -120,6 +120,14 @@ metadata {
             state "yes", label: "COOL", action: "cool"
             state "no", label: "unavail", action: ""
         }
+        valueTile("coolwithlowtemp", "device.coolwithlowtemp", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "COOL(L)", action: "coolwithlowtemp"
+            state "no", label: "unavail", action: ""
+        }
+        valueTile("coolwithsleep", "device.coolwithsleep", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "COOL(H)", action: "coolwithsleep"
+            state "no", label: "unavail", action: ""
+        }
         controlTile("tempSliderControl", "device.level", "slider", range:"(18..30)", height: 2, width: 4) {
             state "level", action:"setRangedLevel"
         }
@@ -134,8 +142,8 @@ metadata {
             state "yes", label: "FanBeforeOff", action: "FanBeforeOff"
             state "no", label: "unavail", action: ""
         }
-        valueTile("OnlyOff", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "yes", label: "FanBeforeOff", action: "onlyoff"
+        valueTile("onlyoff", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "onlyoff", action: "onlyoff"
             state "no", label: "unavail", action: ""
         }
     }
@@ -147,8 +155,9 @@ metadata {
 	details(["power", "tempup", "fanhigh",
             "turbo", "tempdown", "fanlow", 
 			"energysaver","dry","cool",
+            "coolwithlowtemp","coolwithsleep","FanBeforeOff",
             "tempSliderControl", "tempSliderControlValue",
-			"virtualpower","FanBeforeOff"])			
+            "virtualpower","onlyoff"])			
 }
 
 def installed() {
@@ -223,6 +232,26 @@ def dry() {
 def cool() {
      log.debug "child cool"
 	 parent.command(this,"cool") 
+}
+def coolwithlowtemp() {
+    log.debug "child>cooldwithlowtemp, set 18deg, fan high"
+    parent.command(this,"cool") 
+    for(i=0;i<11;i++)
+    {
+        parent.command(this, "tempdown")
+    }
+    for(i=0;i<4;i++)
+    {
+        parent.command(this,"fanhigh")
+    }
+}
+def coolwithsleep() {
+    log.debug "child>coolwithsleep, set 28deg"
+    parent.command(this,"cool") 
+    for(i=0;i<11;i++)
+    {
+        parent.command(this, "tempup")
+    }
 }
 def setRangedLevel(value) {
 	log.debug "setting ranged level to $value"
