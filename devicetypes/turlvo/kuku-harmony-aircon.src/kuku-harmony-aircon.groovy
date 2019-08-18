@@ -259,6 +259,7 @@ def commanddelay(milsec,command)
     log.debug "child>command with delay, delay : ${milsec}, command : ${command}"
     def now = new Date()
     def runTime = new Date(now.getTime() + milsec)
+    log.debug "child>command with delay, now : ${now.getTime()}, command : ${runTIme}"
     runOnce(runTime,mCommandTimerEvt,command)
 }
 def mCommandTimerEvt(command){
