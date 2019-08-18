@@ -239,25 +239,27 @@ def cool() {
 def coolwithlowtemp() {
     log.debug "child>cooldwithlowtemp, set 18deg, fan high"
     parent.command(this,"cool")
-    def commandelaymilsec = 2000
+    def commandelaymilsec = 3000    //TODO: set global var
     def accumdelay =0
     def refdate = new Date()
-    for(int i =0 ; i < 14 ; i++)
+    for(int i =0 ; i < 20 ; i++)
     {
-        //log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
+        // log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
         accumdelay+= commandelaymilsec
         commanddelay(refdate,accumdelay,"tempdown")
     }
-    for(int i =0 ; i < 3 ; i++)
+    for(int i =0 ; i < 5 ; i++)
     {
-        //log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
+        // log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
         accumdelay+= commandelaymilsec
         commanddelay(refdate,accumdelay,"fanhigh")
     }
+    // TODO: record current temperature
 }
 def commanddelay(date,milsec,command)
 {
-    log.debug "child>command with delay, delay : ${milsec}, command : ${command}"
+    // log.debug "child>command with delay, delay : ${milsec}, command : ${command}"
+    // TODO: memory end of scheduled TIme, and process sequencially
     def runTime = new Date(date.getTime() + milsec)
     runOnce(runTime,mCommandTimerEvt,[overwrite:false,data: [passcommand: command]])
 }
@@ -267,12 +269,13 @@ def mCommandTimerEvt(data){
 
 }
 def coolwithsleep() {
+    // TODO: check current temp status, it starts from 18deg
     log.debug "child>coolwithsleep, set 28deg"
     parent.command(this,"cool") 
-    def commandelaymilsec = 2000
+    def commandelaymilsec = 3000
     def accumdelay =0
     def refdate = new Date()
-    for(int i=0;i<11;i++)
+    for(int i=0;i<10;i++)
     {
         accumdelay+= commandelaymilsec
         commanddelay(refdate,accumdelay,"tempup")
