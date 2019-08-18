@@ -255,6 +255,7 @@ def coolwithlowtemp() {
         commanddelay(refdate,accumdelay,"fanhigh")
     }
     // TODO: record current temperature
+    // Tagging
 }
 def commanddelay(date,milsec,command)
 {
