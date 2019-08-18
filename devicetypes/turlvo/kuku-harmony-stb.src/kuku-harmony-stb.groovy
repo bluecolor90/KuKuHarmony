@@ -18,7 +18,7 @@
  */
 
 metadata {
-	definition (name: "KuKu Harmony_TV", namespace: "turlvo", author: "KuKu") {
+	definition (name: "KuKu Harmony_STB", namespace: "turlvo", author: "KuKu") {
         capability "Actuator"
 		capability "Switch"
 		capability "Refresh"
@@ -33,7 +33,8 @@ metadata {
         command "voldown"
         command "chdown"
         command "menu"
-        command "home"
+        //command "home"
+		command "select"
         command "input"
         command "number_1"
         command "number_2"
@@ -46,7 +47,10 @@ metadata {
         command "number_9"
         command "number_0"
         command "back"
-        
+		command "directionup"
+        command "directiondown"
+		command "directionright"
+		command "directionleft"
         command "custom1"
         command "custom2"
         command "custom3"
@@ -65,52 +69,51 @@ metadata {
 		multiAttributeTile(name:"switch", type: "generic", width: 6, height: 4, canChangeIcon: true){
 			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
                 attributeState "off", label:'${name}', action:"switch.on", backgroundColor:"#ffffff", icon: "st.switches.switch.off", nextState:"turningOn"
-				attributeState "on", label:'${name}', action:"switch.off", backgroundColor:"#00A0DC", icon: "st.switches.switch.on", nextState:"turningOff"				
-				attributeState "turningOn", label:'${name}', action:"switch.off", backgroundColor:"#00A0DC", icon: "st.switches.switch.off", nextState:"turningOff"
+				attributeState "on", label:'${name}', action:"switch.off", backgroundColor:"#79b821", icon: "st.switches.switch.on", nextState:"turningOff"				
+				attributeState "turningOn", label:'${name}', action:"switch.off", backgroundColor:"#79b821", icon: "st.switches.switch.off", nextState:"turningOff"
 				attributeState "turningOff", label:'${name}', action:"switch.on", backgroundColor:"#ffffff", icon: "st.switches.switch.on", nextState:"turningOn"
 			}
         }
-
-        standardTile("power", "device.switch", width: 6, height: 3) {
+		
+        standardTile("power", "device.switch", width: 6, height: 2) {
     		state "off", label:'${name}', action:"switch.on", backgroundColor:"#ffffff", icon: "st.switches.switch.off", nextState:"turningOn"
 			state "on", label:'${name}', action:"switch.off", backgroundColor:"#00a0dc", icon: "st.switches.switch.on", nextState:"turningOff"				
 			state "turningOn", label:'${name}', action:"switch.off", backgroundColor:"#00a0dc", icon: "st.switches.switch.off", nextState:"turningOff"
 			state "turningOff", label:'${name}', action:"switch.on", backgroundColor:"#ffffff", icon: "st.switches.switch.on", nextState:"turningOn"
 		}
-        valueTile("volup", "device.volup", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+		valueTile("input", "device.input", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "INPUT", action: "input"
+            state "no", label: "unavail", action: ""
+        }
+        valueTile("volup", "device.volup", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "+\nVOLUME", action: "volup"
             state "no", label: "unavail", action: ""
         }
-        valueTile("chup", "device.chup", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+        valueTile("chup", "device.chup", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "∧\nCHANNEL", action: "chup"
             state "no", label: "unavail", action: ""
         }
         
-        valueTile("mute", "device.mute", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+        valueTile("mute", "device.mute", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "MUTE", action: "mute"
             state "no", label: "unavail", action: ""
         }
-        valueTile("voldown", "device.voldown", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+        valueTile("voldown", "device.voldown", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "VOLUME\n-", action: "voldown"
             state "no", label: "unavail", action: ""
         }
-        valueTile("chdown", "device.chdown", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+        valueTile("chdown", "device.chdown", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "CHANNEL\n∨", action: "chdown"
             state "no", label: "unavail", action: ""
         }
 
-        valueTile("menu", "device.menu", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "yes", label: "MENU", action: "menu"
-            state "no", label: "unavail", action: ""
-        }
-        valueTile("home", "device.home", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+        
+        /*valueTile("home", "device.home", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "HOME", action: "home"
             state "no", label: "unavail", action: ""
-        }
-        valueTile("input", "device.input", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "yes", label: "INPUT", action: "input"
-            state "no", label: "unavail", action: ""
-        }
+        }*/
+		
+        
         
         valueTile("number_1", "device.number_1", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "1", action: "number_1"
@@ -148,29 +151,66 @@ metadata {
             state "yes", label: "9", action: "number_9"
             state "no", label: "unavail", action: ""
         }
-        valueTile("back", "device.back", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+        valueTile("number_0", "device.number_0", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "0", action: "number_0"
+            state "no", label: "unavail", action: ""
+        }
+		
+		
+		//select
+		valueTile("menu", "device.menu", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "MENU", action: "menu"
+            state "no", label: "unavail", action: ""
+        }
+		valueTile("back", "device.back", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "BACK", action: "back"
             state "no", label: "unavail", action: ""
         }
-        valueTile("number_0", "device.number_0", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "yes", label: "0", action: "number_0"
+		valueTile("select", "device.select", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {            
+			state "yes", label: "OK", action: "select"
+            state "no", label: "unavail", action: ""
+        }
+		valueTile("directiondown", "device.directiondown", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "∨", action: "directiondown"
+            state "no", label: "unavail", action: ""
+        }
+		valueTile("directionleft", "device.directionleft", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "〈", action: "directionleft"
+            state "no", label: "unavail", action: ""
+        }
+		valueTile("directionup", "device.directionup", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "∧", action: "directionup"
+            state "no", label: "unavail", action: ""
+        }
+		valueTile("directionright", "device.directionright", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "〉", action: "directionright"
+            state "no", label: "unavail", action: ""
+        }
+		
+		valueTile("blank", "device.number_0", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "", action: ""
             state "no", label: "unavail", action: ""
         }
 		valueTile("virtualpower", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "on", label: "virtualOff", action: "virtualpower"
 			state "off", label: "virtualOn", action: "virtualpower"
         }
+		
+		
     }
 
 	main(["switch"])
 	details(["power",
-			"virtualpower", "volup", "chup",
+			"input","volup", "chup",
             "mute", "voldown", "chdown",
-            "menu", "home", "input",
+			"menu","directionup","back",
+			"directionleft","select","directionright",
+			"blank","directiondown","blank",
             "number_1", "number_2", "number_3",
             "number_4", "number_5", "number_6",
             "number_7", "number_8", "number_9",
-            "back", "number_0"])
+            "blank", "number_0","input",
+			"virtualpower"])
 }
 
 def installed() {
@@ -280,6 +320,26 @@ def number_0(value) {
     log.debug "child number_0()"
     parent.commandValue(this, "0")   
 }
+def select() {
+	log.debug "child select()"
+    parent.command(this, "select")   
+}
+def directionup() {
+    log.debug "child directionup()"
+    parent.command(this, "directionup")   
+}
+def directiondown() {
+    log.debug "child directiondown()"
+    parent.command(this, "directiondown")   
+}
+def directionleft() {
+    log.debug "child directionleft()"
+    parent.command(this, "directionleft")   
+}
+def directionright() {
+    log.debug("child directionright()")
+    parent.command(this, "directionright")   
+}
 
 def custom1() {
     log.debug "child custom1()"
@@ -307,43 +367,26 @@ def custom5() {
 }
 
 def on() {
-    log.debug "child on()"
-
-    log.debug "on>> ${device.currentState("switch")?.value}"
-    def currentState = device.currentState("switch")?.value
-
-    if (currentState == "on") {
-        log.debug "Already turned on, skip ON command"
-    } else {
-        parent.command(this, "power-on")
-        sendEvent(name: "switch", value: "on")
-
-        if (momentaryOn) {
-            if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) settings.momentaryOnDelay = 5
-            log.debug "momentaryOnHandler() >> time : " + settings.momentaryOnDelay
-            runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
-        }
-    }
-}
-
-def off() {
-    log.debug "child off"    
-
-    log.debug "off>> ${device.currentState("switch")?.value}"
-    def currentState = device.currentState("switch")?.value
-
-    if (currentState == "on") {
-        parent.command(this, "power-off")
-        sendEvent(name: "switch", value: "off")
-
-    } else {
-        log.debug "Already turned off, skip OFF command"
+	log.debug "child on()"
+	parent.command(this, "power-on")
+    sendEvent(name: "switch", value: "on")
+	
+	if (momentaryOn) {
+    	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) settings.momentaryOnDelay = 5
+    	log.debug "momentaryOnHandler() >> time : " + settings.momentaryOnDelay
+    	runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
     }
 }
 
 def momentaryOnHandler() {
 	log.debug "momentaryOnHandler()"
 	sendEvent(name: "switch", value: "off")
+}
+
+def off() {
+	log.debug "child off"
+	parent.command(this, "power-off")
+    sendEvent(name: "switch", value: "off")
 }
 
 

@@ -28,25 +28,40 @@ metadata {
         
         command "power"
         command "tempup"
-        command "mode"
-        command "jetcool"
+        // command "mode"
+        // command "jetcool"
         command "tempdown"
-        command "speed"
+        // command "speed"
         command "setRangedLevel", ["number"]
 
-        command "custom1"
-        command "custom2"
-        command "custom3"
-        command "custom4"
-        command "custom5"
-        
+		command "fanhigh"
+		command "turbo"
+		command "fanlow" 
+		command "energysaver"
+		command "dry"
+		command "cool"
+        command "coolwithlowtemp"
+        command "coolwithsleep"
+        command "onlyoff"
+        // command "custom1"
+        // command "custom2"
+        // command "custom3"
+        // command "custom4"
+        // command "custom5"
+		command "virtualpower"
         command "virtualOn"
         command "virtualOff"
+		command "FanBeforeOff"
 	}
 
     preferences {
         input name: "momentaryOn", type: "bool",title: "Enable Momentary on (for garage door controller)", required: false
         input name: "momentaryOnDelay", type: "num",title: "Enable Momentary on dealy time(default 5 seconds)", required: false
+		input name: "momentaryOn", type: "bool",title: "Enable Momentary on (for garage door controller)", required: false
+		input name: "numOnDelay", type: "num",title: "on dealy time(default 5 seconds)", required: false
+		input name: "numOffDelay", type: "num",title: "off dealy time(default 5 seconds)", required: false
+		input name: "FanModeBeforeOff", type: "bool",title: "Activate Fanmode for set seconds before turn off ", required: false
+		input name: "numFanModeBeforeOff", type: "num",title: "Activate Fanmode for set seconds before turn off dealy time(default 300 seconds)", required: false
     }
     
 	tiles (scale: 2){      
@@ -67,21 +82,53 @@ metadata {
             state "yes", label: "TEMP UP", action: "tempup"
             state "no", label: "unavail", action: ""
         }
-        valueTile("mode", "device.mode", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "yes", label: "MODE", action: "mode"
+		valueTile("fanhigh", "device.fanhigh", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "FAN HIGH", action: "fanhigh"
             state "no", label: "unavail", action: ""
         }
+        // valueTile("mode", "device.mode", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            // state "yes", label: "MODE", action: "mode"
+            // state "no", label: "unavail", action: ""
+        // }
         
-        valueTile("jetcool", "device.jetcool", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "yes", label: "JET MODE", action: "jetcool"
+        // valueTile("jetcool", "device.jetcool", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            // state "yes", label: "JET MODE", action: "jetcool"
+            // state "no", label: "unavail", action: ""
+        // }
+		valueTile("turbo", "device.turbo", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "TURBO MODE", action: "turbo"
             state "no", label: "unavail", action: ""
         }
         valueTile("tempdown", "device.tempdown", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
             state "yes", label: "TEMP DOWN", action: "tempdown"
             state "no", label: "unavail", action: ""
         }
-        valueTile("speed", "device.speed", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
-            state "yes", label: "FAN SPEED", action: "speed"
+		valueTile("fanlow", "device.fanlow", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "FAN LOW", action: "fanlow"
+            state "no", label: "unavail", action: ""
+        }
+        // valueTile("speed", "device.speed", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            // state "yes", label: "FAN SPEED", action: "speed"
+            // state "no", label: "unavail", action: ""
+        // }
+		valueTile("energysaver", "device.energysaver", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "Energy Saving", action: "energysaver"
+            state "no", label: "unavail", action: ""
+        }
+		valueTile("dry", "device.dry", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "DRY", action: "dry"
+            state "no", label: "unavail", action: ""
+        }
+		valueTile("cool", "device.cool", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "COOL", action: "cool"
+            state "no", label: "unavail", action: ""
+        }
+        valueTile("coolwithlowtemp", "device.coolwithlowtemp", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "COOL(L)", action: "coolwithlowtemp"
+            state "no", label: "unavail", action: ""
+        }
+        valueTile("coolwithsleep", "device.coolwithsleep", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "COOL(H)", action: "coolwithsleep"
             state "no", label: "unavail", action: ""
         }
         controlTile("tempSliderControl", "device.level", "slider", range:"(18..30)", height: 2, width: 4) {
@@ -90,13 +137,30 @@ metadata {
         valueTile("tempSliderControlValue", "device.level", height: 2, width: 2) {
 			state "range", label:'Temperature\n${currentValue}°C', defaultState: true
 		}
-
+		valueTile("virtualpower", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "on", label: "virtualOff", action: "virtualpower"
+			state "off", label: "virtualOn", action: "virtualpower"
+        }
+		valueTile("FanBeforeOff", "device.switch", width: 2, height: 2, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "FanBeforeOff", action: "FanBeforeOff"
+            state "no", label: "unavail", action: ""
+        }
+        valueTile("onlyoff", "device.switch", width: 2, height: 1, decoration: "flat", canChangeIcon: false, canChangeBackground: false) {
+            state "yes", label: "onlyoff", action: "onlyoff"
+            state "no", label: "unavail", action: ""
+        }
     }
 
 	main(["switch"])
-	details(["power", "tempup", "mode",
-            "jetcool", "tempdown", "speed", 
-            "tempSliderControl", "tempSliderControlValue"])
+	// details(["power", "tempup", "mode",
+            // "jetcool", "tempdown", "speed", 
+            // "tempSliderControl", "tempSliderControlValue"])
+	details(["power", "tempup", "fanhigh",
+            "turbo", "tempdown", "fanlow", 
+			"energysaver","dry","cool",
+            "coolwithlowtemp","coolwithsleep","FanBeforeOff",
+            "tempSliderControl", "tempSliderControlValue",
+            "virtualpower","onlyoff"])			
 }
 
 def installed() {
@@ -110,11 +174,11 @@ def parse(String description) {
 }
 
 def power() {
-    log.debug "child power()"
+    log.debug "child.power()"
     
     //def currentState = device.currentState("switch")?.value
     def currentState = device.currentValue("switch")
-    log.debug "power>> state: $currentState"
+    log.debug "child.power>> state: $currentState"
 
     if (currentState == "on") {
 		off()
@@ -133,10 +197,10 @@ def mode() {
     parent.command(this, "mode")
 }
 
-def jetcool() {
-    log.debug "child jetcool()"
-    parent.command(this, "jetcool")
-}
+//def jetcool() {
+//    log.debug "child jetcool()"
+   // parent.command(this, "jetcool")
+// }
 
 def tempdown() {
     log.debug "child tempdown()"
@@ -148,7 +212,75 @@ def speed() {
     parent.command(this, "speed")
     
 }
+def turbo() {
+     log.debug "child turbo"
+	 parent.command(this,"turbo") 
+}
+def fanlow() {
+     log.debug "child fanlow"
+	 parent.command(this,"fanlow") 
+}
+def fanhigh() {
+     log.debug "child fanhigh"
+	 parent.command(this,"fanhigh") 
+}
+def energysaver() {
+     log.debug "child energysaver"
+	 parent.command(this,"energysaver") 
+}
+def dry() {
+     log.debug "child dry"
+	 parent.command(this,"dry") 
+}
+def cool() {
+     log.debug "child cool"
+	 parent.command(this,"cool") 
+}
+def coolwithlowtemp() {
+    log.debug "child>cooldwithlowtemp, set 18deg, fan high"
+    parent.command(this,"cool")
+    def commandelaymilsec = 3000    //TODO: set global var
+    def accumdelay =0
+    def refdate = new Date()
+    for(int i =0 ; i < 20 ; i++)
+    {
+        // log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
+        accumdelay+= commandelaymilsec
+        commanddelay(refdate,accumdelay,"tempdown")
+    }
+    for(int i =0 ; i < 5 ; i++)
+    {
+        // log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
+        accumdelay+= commandelaymilsec
+        commanddelay(refdate,accumdelay,"fanhigh")
+    }
+    // TODO: record current temperature
+}
+def commanddelay(date,milsec,command)
+{
+    // log.debug "child>command with delay, delay : ${milsec}, command : ${command}"
+    // TODO: memory end of scheduled TIme, and process sequencially
+    def runTime = new Date(date.getTime() + milsec)
+    runOnce(runTime,mCommandTimerEvt,[overwrite:false,data: [passcommand: command]])
+}
+def mCommandTimerEvt(data){
+    log.debug "child>mCommandTimerEvt>input command : ${data.passcommand}"
+    parent.command(this,data.passcommand)
 
+}
+def coolwithsleep() {
+    // TODO: check current temp status, it starts from 18deg
+    log.debug "child>coolwithsleep, set 28deg"
+    parent.command(this,"cool") 
+    def commandelaymilsec = 3000
+    def accumdelay =0
+    def refdate = new Date()
+    for(int i=0;i<10;i++)
+    {
+        accumdelay+= commandelaymilsec
+        commanddelay(refdate,accumdelay,"tempup")
+    }
+}
 def setRangedLevel(value) {
 	log.debug "setting ranged level to $value"
 	parent.commandValue(this, value)
@@ -180,47 +312,111 @@ def custom5() {
     log.debug "child custom5()"
     parent.command(this, "custom5")
 }
+def virtualpower() {	
+    if(device.currentValue("switch")=="on")
+	{
+		log.debug "child virtualoff()"
+		sendEvent(name:"switch",value:"off")
+	}
+	else
+	{
+		log.debug "child virtualoff()"
+		sendEvent(name:"switch",value:"on")
+	}
+}
 
 
 def momentaryOnHandler() {
-	log.debug "momentaryOnHandler()"
-	sendEvent(name: "switch", value: "off")
+	log.debug "child.momentaryOnHandler>executed"
+    //sendEvent(name: "switch", value: "off")
 }
 
 
 def on() {
-    log.debug "child on()"
+	log.debug "child.on>entered"
+	
+    
+	if (settings.numOnDelay == null || settings.numOnDelay == "" ) 
+    {
+        settings.numOnDelay = "5"
+        log.debug "child.on>numOnDelay not set, set to default value 5"
+    }
+    log.debug "child.on>turn on with delay $settings.numOnDelay"
+	runIn(Integer.parseInt(settings.numOnDelay),ondelay)
+	
+    sendEvent(name: "switch", value: "on")
+	log.debug "child.on>done"
+    
 
-    log.debug "on>> ${device.currentState("switch")?.value}"
-    def currentState = device.currentState("switch")?.value
-
-    if (currentState == "on") {
-        log.debug "Already turned on, skip ON command"
-    } else {
-        parent.command(this, "power-on")
-        sendEvent(name: "switch", value: "on")
-
-        if (momentaryOn) {
-            if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) settings.momentaryOnDelay = 5
-            log.debug "momentaryOnHandler() >> time : " + settings.momentaryOnDelay
-            runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
-        }
+}
+def onlyoff(){
+    log.debug "child.onlyoff>Entered."
+	parent.command(this, "power-off")
+	log.debug "child.onlyoff>ismoment: $momentaryOn,moment : settings.momentaryOnDelay, delay : $settings.momentaryOnDelay"
+	if (settings.numOffDelay == null || settings.numOffDelay == "" )
+    {
+        settings.numOffDelay = "5"
+        log.debug "child.onlyoff>numOffDelay not set, set to default value 5"
+    }
+    log.debug "child.onlyoff>turn off with delay $settings.numOffDelay"
+	runIn(Integer.parseInt(settings.numOffDelay),offdelay)
+	log.debug "child.onlyoff>Done"
+}
+def off() {
+    if (settings.FanModeBeforeOff)
+    {
+        FanBeforeOff()
+    }
+    else{
+        onlyoff()
     }
 }
-
-def off() {
-    log.debug "child off"    
-
-    log.debug "off>> ${device.currentState("switch")?.value}"
-    def currentState = device.currentState("switch")?.value
-
-    if (currentState == "on") {
-        parent.command(this, "power-off")
-        sendEvent(name: "switch", value: "off")
-
-    } else {
-        log.debug "Already turned off, skip OFF command"
+def ondelay()
+{
+	log.debug "child.ondelay>Entered"
+    //need check contact
+    parent.command(this, "power-on")
+    if (momentaryOn) {
+    	if (settings.momentaryOnDelay == null || settings.momentaryOnDelay == "" ) 
+        {
+            settings.momentaryOnDelay = "5"
+            log.debug "child.ondelay>numOnDelay not set, set to default value 5"
+        }
+    	log.debug "child.ondelay>momentaryOnHandler() with delay : $settings.momentaryOnDelay"
+    	runIn(Integer.parseInt(settings.momentaryOnDelay), momentaryOnHandler, [overwrite: true])
     }
+    }
+def FanBeforeOffDelay()
+{
+    log.debug "child.FanBeforeOffDelay>Enter, Execute off()"
+    onlyoff()
+}
+def FanBeforeOff()
+{
+    energysaver()
+	log.debug "child.FanBeforeOff>Set Energy saver Mode Done"
+    
+	if (settings.FanModeBeforeOff)
+	{
+        log.debug "child.FanBeforeOff> FanMode Before Off executed."
+		if (settings.numFanModeBeforeOff == null || settings.numFanModeBeforeOff == "" ) 
+        {
+            settings.numFanModeBeforeOff = "300"
+            log.debug "child.FanBeforeOff> Fan Mode Delay Not Set, Set to default value (300)"
+        }
+        log.debug "child.FanBeforeOff>Set Delay for $settings.numFanModeBeforeOff"
+		runIn(Integer.parseInt(settings.numFanModeBeforeOff),FanBeforeOffDelay)
+	}
+    else
+    {
+        log.debug "child.FanBeforeOff> Skip Delay & Off, if you want to off with delay, set FanModeBeforeOff to true"
+    }
+	
+}
+def offdelay()
+{
+	log.debug "offdelay()"
+    sendEvent(name: "switch", value: "off")
 }
 
 
@@ -249,11 +445,18 @@ def generateEvent(Map results) {
 		log.debug "generateEvent>> name: $name, value: $value"
         def currentState = device.currentValue("switch")
 		log.debug "generateEvent>> currentState: $currentState"
-        if (currentState != value) {
-        	log.debug "generateEvent>> changed to $value"
-        	sendEvent(name: "switch", value: value)
-        } else {
-        	log.debug "generateEvent>> not change"
+        if(value == "off")
+        {
+            log.debug "generateEvent>>switch is now off, execute child.virtualoff"
+            virtualOff()
+        }
+        else if(vlaue == "on"){
+            if(currentState==value)
+            {
+                log.debug "generateEvent>>switch is just on, but aircondition is on, so sync status(turn off)"
+                virtualOff()
+            }
+            log.debug "generateEvent>>switch is now on, state would not change"
         }
     }
     return null
