@@ -239,29 +239,26 @@ def cool() {
 def coolwithlowtemp() {
     log.debug "child>cooldwithlowtemp, set 18deg, fan high"
     parent.command(this,"cool")
-    def commandelaymilsec = 1000
+    def commandelaymilsec = 2000
     def accumdelay =0
-    accumdelay+= commandelaymilsec
-    commanddelay(accumdelay,"tempdown")
+    def refdate = new Date()
     for(int i =0 ; i < 14 ; i++)
     {
-        log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
+        //log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
         accumdelay+= commandelaymilsec
-        commanddelay(accumdelay,"tempdown")
+        commanddelay(refdate,accumdelay,"tempdown")
     }
     for(int i =0 ; i < 3 ; i++)
     {
-        log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
+        //log.debug "child>cooldwithlowtemp> debug, in loop ${accumdelay}"
         accumdelay+= commandelaymilsec
-        commanddelay(accumdelay,"fanhigh")
+        commanddelay(refdate,accumdelay,"fanhigh")
     }
 }
-def commanddelay(milsec,command)
+def commanddelay(date,milsec,command)
 {
     log.debug "child>command with delay, delay : ${milsec}, command : ${command}"
-    def now = new Date()
-    def runTime = new Date(now.getTime() + milsec)
-    log.debug "child>command with delay, runonce at : ${runTIme}"
+    def runTime = new Date(date.getTime() + milsec)
     runOnce(runTime,mCommandTimerEvt,[overwrite:false,data: [passcommand: command]])
 }
 def mCommandTimerEvt(data){
@@ -272,9 +269,13 @@ def mCommandTimerEvt(data){
 def coolwithsleep() {
     log.debug "child>coolwithsleep, set 28deg"
     parent.command(this,"cool") 
-    for(i=0;i<11;i++)
+    def commandelaymilsec = 2000
+    def accumdelay =0
+    def refdate = new Date()
+    for(int i=0;i<11;i++)
     {
-        parent.command(this, "tempup")
+        accumdelay+= commandelaymilsec
+        commanddelay(refdate,accumdelay,"tempup")
     }
 }
 def setRangedLevel(value) {
