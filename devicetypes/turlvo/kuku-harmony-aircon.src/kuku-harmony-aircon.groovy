@@ -243,12 +243,18 @@ def coolwithlowtemp() {
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${it}"
         parent.command(this, "tempdown")
-        Thread.sleep(100)
+        runIn(1,commanddelay)
     }
-    for(i=0;i<4;i++)
+    (1..4).each
     {
+        log.debug "child>cooldwithlowtemp> debug, in loop ${it}"
         parent.command(this,"fanhigh")
+        runIn(1,commanddelay)
     }
+}
+def commanddelay()
+{
+    log.debug "child>command delay"
 }
 def coolwithsleep() {
     log.debug "child>coolwithsleep, set 28deg"
