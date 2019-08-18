@@ -243,18 +243,24 @@ def coolwithlowtemp() {
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
         parent.command(this, "tempdown")
-        pause(200)
+        commanddelay(200)
     }
     for(int i =0 ; i < 3 ; i++)
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
         parent.command(this,"fanhigh")
-        pause(200)
+        commanddelay(200)
     }
 }
-def commanddelay()
+def commanddelay(milsec)
 {
     log.debug "child>command delay"
+    def now = new Date()
+    def runTime = new Date(now.getTime() + milsec)
+    runOnce(runTime,mTimerEvt)
+}
+def mTimerEvt(){
+    log.debug "child>mTimerEvt"
 }
 def coolwithsleep() {
     log.debug "child>coolwithsleep, set 28deg"
