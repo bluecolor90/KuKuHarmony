@@ -239,18 +239,17 @@ def cool() {
 def coolwithlowtemp() {
     log.debug "child>cooldwithlowtemp, set 18deg, fan high"
     parent.command(this,"cool")
-    int commandinterval = 300
     for(int i =0 ; i < 14 ; i++)
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
         parent.command(this, "tempdown")
-        pause(commandinterval)
+        pause(Integer(300))
     }
     for(int i =0 ; i < 3 ; i++)
     {
         log.debug "child>cooldwithlowtemp> debug, in loop ${i}"
         parent.command(this,"fanhigh")
-        pause(commandinterval)
+        pause(Integer(300))
     }
 }
 def commanddelay()
